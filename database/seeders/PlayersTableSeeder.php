@@ -19,12 +19,12 @@ class PlayersTableSeeder extends Seeder
         // Use the Player factory to create   50 players
         Player::factory()->count(50)->create()->each(function ($player) use ($faker) {
             // Get a random subset of skills
-            $skills = Skill::all()->random(rand(1,  5));
+            $skills = Skill::all()->random(rand(1, 5));
 
             // Prepare an array to hold the skill IDs and their values
             $skillValues = [];
             foreach ($skills as $skill) {
-                $skillValues[$skill->id] = ['value' => $faker->numberBetween(1,  100)];
+                $skillValues[$skill->id] = ['value' => $faker->numberBetween(1, 100)];
             }
 
             // Sync the skills with the player, ensuring no duplicates

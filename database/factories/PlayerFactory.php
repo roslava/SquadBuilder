@@ -1,4 +1,5 @@
 <?php
+
 namespace Database\Factories;
 
 use App\Models\Player;
@@ -21,7 +22,7 @@ class PlayerFactory extends Factory
     {
         return $this->afterCreating(function (Player $player) use ($skills) {
             foreach ($skills as $skill) {
-                $player->skills()->attach($skill, ['value' => rand(0,  100)]);
+                $player->skills()->attach($skill, ['value' => rand(0, 100)]);
             }
         });
     }

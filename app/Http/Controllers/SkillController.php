@@ -46,13 +46,13 @@ class SkillController extends Controller
             DB::commit();
 
             // Return the created player data
-            return response()->json($player->load('skills'),   201);
+            return response()->json($player->load('skills'), 201);
         } catch (\Exception $e) {
             // Rollback the transaction in case of an error
             DB::rollBack();
 
             // Handle the exception (log the error, return a response, etc.)
-            return response()->json(['message' => 'An error occurred while creating the player.'],   500);
+            return response()->json(['message' => 'An error occurred while creating the player.'], 500);
         }
     }
 }

@@ -2,17 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
-
 Route::get('/', function () {
-    return view('welcome');
+    echo '<p style="font-family: Arial, sans-serif; color: #797979; font-size:  20px; font-weight: bold; font-style: italic;">This is a simple API that manage players with some skills and select the best players with the desired position/skill for the dream team.</p>';
 });

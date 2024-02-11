@@ -14,7 +14,7 @@ class SkillFactory extends Factory
         return [
             'skill' => $this->faker->word,
             // Assuming the 'value' column exists in the 'skills' table
-            'value' => rand(0,  100),
+            'value' => rand(0, 100),
         ];
     }
 }
