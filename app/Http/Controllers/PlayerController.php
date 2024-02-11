@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
-
 class PlayerController extends Controller
 {
     protected TeamSelectionService $teamSelectionService;
@@ -75,49 +74,47 @@ class PlayerController extends Controller
         // Start a database transaction
         DB::beginTransaction();
 
-            // Create the player record
-            $player = Player::create([
-                'name' => $validatedData['name'],
-                'position' => $validatedData['position'],
-            ]);
+        // Create the player record
+        $player = Player::create([
+            'name' => $validatedData['name'],
+            'position' => $validatedData['position'],
+        ]);
 
-            // Prepare an array to hold the playerSkills data
-            $playerSkillsData = [];
+        // Prepare an array to hold the playerSkills data
+        $playerSkillsData = [];
 
-            // Associate playerSkills with the player
-            foreach ($validatedData['playerSkills'] as $skillData) {
-                $skill = Skill::firstOrCreate(['skill' => $skillData['skill']]);
-                $player->skills()->attach($skill->id, ['value' => $skillData['value']]);
+        // Associate playerSkills with the player
+        foreach ($validatedData['playerSkills'] as $skillData) {
+            $skill = Skill::firstOrCreate(['skill' => $skillData['skill']]);
+            $player->skills()->attach($skill->id, ['value' => $skillData['value']]);
 
-                // Add the skill data to the playerSkillsData array
-                $playerSkillsData[] = [
-                    'id' => $skill->id,
-                    'skill' => $skill->skill,
-                    'value' => $skillData['value'],
-                    'playerId' => $player->id,
-                ];
-            }
+            // Add the skill data to the playerSkillsData array
+            $playerSkillsData[] = [
+                'id' => $skill->id,
+                'skill' => $skill->skill,
+                'value' => $skillData['value'],
+                'playerId' => $player->id,
+            ];
+        }
 
-            // Commit the transaction
-            DB::commit();
+        // Commit the transaction
+        DB::commit();
 
-            // Return the created player data with playerSkills
-            return response()->json([
-                'id' => $player->id,
-                'name' => $player->name,
-                'position' => $player->position,
-                'playerSkills' => $playerSkillsData,
-            ],   201); //   201 Created status code
+        // Return the created player data with playerSkills
+        return response()->json([
+            'id' => $player->id,
+            'name' => $player->name,
+            'position' => $player->position,
+            'playerSkills' => $playerSkillsData,
+        ], 201); //   201 Created status code
 
-            // Rollback the transaction in case of an error
-            DB::rollBack();
+        // Rollback the transaction in case of an error
+        DB::rollBack();
 
-            // Log the error and return a generic error response
-            Log::error('Failed to create player: ' . $e->getMessage());
-            return response()->json(['message' => 'An error occurred while creating the player.'],   500);
-
+        // Log the error and return a generic error response
+        Log::error('Failed to create player: ' . $e->getMessage());
+        return response()->json(['message' => 'An error occurred while creating the player.'], 500);
     }
-
 
     /**
      * Display the specified resource.
@@ -190,8 +187,6 @@ class PlayerController extends Controller
         }
     }
 
-
-
     /**
      * Remove the specified resource from storage.
      *
@@ -211,10 +206,8 @@ class PlayerController extends Controller
         $player->delete();
 
         // Return a successful response
-        return response()->json(null,   204);
+        return response()->json(null, 204);
     }
-
-
 
     /**
      * Select the best team based on the provided requirements.
@@ -225,41 +218,33 @@ class PlayerController extends Controller
      */
     public function selectBestTeam(Request $request): JsonResponse
     {
-        try{
-            $request->validate([
-                '*.position' => 'sometimes|required|max:255',
-                '*.mainSkill' => 'sometimes|required|max:255',
-                '*.numberOfPlayers' => 'sometimes|required|integer',
-            ]);
+        $request->validate([
+            '*.position' => 'sometimes|required|max:255',
+            '*.mainSkill' => 'sometimes|required|max:255',
+            '*.numberOfPlayers' => 'sometimes|required|integer',
+        ]);
 
-            // Delegate the work to the TeamSelectionService
-            $selectedPlayers = $this->teamSelectionService->selectBestTeamFromRequirements($request->all());
+        // Delegate the work to the TeamSelectionService
+        $selectedPlayers = $this->teamSelectionService->selectBestTeamFromRequirements($request->all());
 
-            // Transform the selected players to include the playerSkills array
-            $transformedSelectedPlayers = $selectedPlayers->map(function ($player) {
-                // Map over the skills to create the playerSkills array
-                $playerSkills = $player->skills->map(function ($skill) {
-                    return [
-                        'skill' => $skill->skill,
-                        'value' => $skill->pivot->value,
-                    ];
-                });
-
-                // Return the transformed player data
+        // Transform the selected players to include the playerSkills array
+        $transformedSelectedPlayers = $selectedPlayers->map(function ($player) {
+            // Map over the skills to create the playerSkills array
+            $playerSkills = $player->skills->map(function ($skill) {
                 return [
-                    'name' => $player->name,
-                    'position' => $player->position,
-                    'playerSkills' => $playerSkills,
+                    'skill' => $skill->skill,
+                    'value' => $skill->pivot->value,
                 ];
             });
 
-            // Return the transformed selected players as a JSON response
-            return response()->json($transformedSelectedPlayers);
-        }catch (\Throwable $exception){
-            var_dump($exception->getMessage()); exit;
-        }
-
+            // Return the transformed player data
+            return [
+                'name' => $player->name,
+                'position' => $player->position,
+                'playerSkills' => $playerSkills,
+            ];
+        });
+        // Return the transformed selected players as a JSON response
+        return response()->json($transformedSelectedPlayers);
     }
-
-
 }
