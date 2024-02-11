@@ -20,7 +20,6 @@ class PlayerController extends Controller
      */
     public function index(): JsonResponse
     {
-//        return var_dump('here');
         // Retrieve all players and eager load their skills
         $players = Player::with('skills')->get();
 
@@ -69,7 +68,6 @@ class PlayerController extends Controller
         // Start a database transaction
         DB::beginTransaction();
 
-        try {
             // Create the player record
             $player = Player::create([
                 'name' => $validatedData['name'],
@@ -103,14 +101,14 @@ class PlayerController extends Controller
                 'position' => $player->position,
                 'playerSkills' => $playerSkillsData,
             ],   201); //   201 Created status code
-        } catch (\Exception $e) {
+
             // Rollback the transaction in case of an error
             DB::rollBack();
 
             // Log the error and return a generic error response
             Log::error('Failed to create player: ' . $e->getMessage());
             return response()->json(['message' => 'An error occurred while creating the player.'],   500);
-        }
+
     }
 
 
