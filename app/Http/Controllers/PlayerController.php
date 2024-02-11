@@ -13,6 +13,13 @@ use Illuminate\Validation\Rule;
 
 class PlayerController extends Controller
 {
+    protected TeamSelectionService $teamSelectionService;
+
+    public function __construct(TeamSelectionService $teamSelectionService)
+    {
+        $this->teamSelectionService = $teamSelectionService;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -207,12 +214,7 @@ class PlayerController extends Controller
         return response()->json(null,   204);
     }
 
-    protected TeamSelectionService $teamSelectionService;
 
-    public function __construct(TeamSelectionService $teamSelectionService)
-    {
-        $this->teamSelectionService = $teamSelectionService;
-    }
 
     /**
      * Select the best team based on the provided requirements.
